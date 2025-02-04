@@ -54,3 +54,38 @@ sigma = np.diag(sigma)
 #reconstructing the matrix with the new sigma to ensure we can use the predictions
 PredictedRating = np.dot(np.dot(u, sigma), vtranspose)
 print(PredictedRating)
+
+
+#building the actual recommendation function 
+def Get_Recommendations(title, cosine_sim = cosineSim):
+    # Check if the title exists
+    if title not in movies['title'].values:
+        print(f"Movie '{title}' not found in the dataset.")
+        return
+    
+    #get the id of movies with the title provided
+    ids = movies[movies['title'] == title].index[0]
+    
+    #we make a sim score of all the ids with the same id using the cosine_sim function
+    sim_score = list(enumerate(cosine_sim[ids]))
+    
+    #sorting the scores in non-increasing order
+    sim_score = sorted(sim_score, key=lambda x : x[1], reverse=True)
+    
+    #we take the first 10 recommendations based on the sim score
+    sim_score = sim_score[1:11]
+    
+    #we iterate through all the movie names 
+    movies_ind = [i[0] for i in sim_score]
+    
+    #checking the indeces
+    #print(movies_ind)
+    
+    #recommendations which are written in a list
+    recs = movies['title'].iloc[movies_ind].values
+    
+    #printing all the top recommendations
+    print(f"Recommendations are : \n")
+    for name in recs:
+        print(name)
+        

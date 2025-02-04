@@ -11,8 +11,8 @@ rating = pd.read_csv("ratings.csv")
 movies = pd.read_csv("movies.csv")
 
 #to check if the import is proper by printing
-print(rating.head())
-print(movies.head())
+#print(rating.head())
+#print(movies.head())
 
 
 #merges the data based on the entries in column MovieId
@@ -21,7 +21,7 @@ totdata = pd.merge(rating, movies, on='movieId')
 
 #making a pivot table
 UserPivotTable = pd.pivot_table(totdata, index='userId', columns='title', values='rating', fill_value=0)
-print(UserPivotTable)
+#print(UserPivotTable)
 
 #recommendation algorithm
 '''
@@ -53,7 +53,7 @@ sigma = np.diag(sigma)
 
 #reconstructing the matrix with the new sigma to ensure we can use the predictions
 PredictedRating = np.dot(np.dot(u, sigma), vtranspose)
-print(PredictedRating)
+#print(PredictedRating)
 
 
 #building the actual recommendation function 

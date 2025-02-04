@@ -44,3 +44,13 @@ cosineSim = cosine_similarity(tfidf_mat, tfidf_mat)
 UserSim = cosine_similarity(UserPivotTable.fillna(0))
 #print(UserSim)
 
+#converting the given pivot matrix into a sparse matrix as it is of large size and is of mostly zeros
+UserSparseMat = csr_matrix(UserPivotTable.values)
+
+#using the sparse matrix we can perform the svd to get our components 
+u, sigma, vtranspose = svds(UserSparseMat, k=50)
+sigma = np.diag(sigma)
+
+#reconstructing the matrix with the new sigma to ensure we can use the predictions
+PredictedRating = np.dot(np.dot(u, sigma), vtranspose)
+print(PredictedRating)

@@ -89,3 +89,12 @@ def Get_Recommendations(title, cosine_sim = cosineSim):
     for name in recs:
         print(name)
         
+#Taking the inputs from the user
+MovName = str(input("Enter name of the film you already like: "))
+MovYear = str(input("Enter the year of the film's release: "))
+
+#making the proper input for the recommendation algo
+fullMovieName = MovName + " (" + MovYear + ")"
+
+#Using the aformentioned recommender
+Get_Recommendations(fullMovieName)

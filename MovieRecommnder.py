@@ -29,3 +29,9 @@ print(UserPivotTable)
 - we calcuate how close the values are using cosine similarity (can use k means clustering too tho na? would work or not?)
 - We recommend the movie based on how close the movie is to current movie
 '''
+
+#performing the TF-IDF vectorization of all the genres in movies
+tfidf = TfidfVectorizer(stop_words='english')
+movies['genres'] = movies['genres'].fillna('')
+tfidf_mat = tfidf.fit_transform(movies['genres'])
+

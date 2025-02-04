@@ -35,3 +35,12 @@ tfidf = TfidfVectorizer(stop_words='english')
 movies['genres'] = movies['genres'].fillna('')
 tfidf_mat = tfidf.fit_transform(movies['genres'])
 
+#performing the cosine similarity\
+#for the simillarity between the tfidf matrices 
+cosineSim = cosine_similarity(tfidf_mat, tfidf_mat)
+#print(cosineSim)
+
+#for performing the similarity between the users itself
+UserSim = cosine_similarity(UserPivotTable.fillna(0))
+#print(UserSim)
+

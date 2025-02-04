@@ -13,3 +13,19 @@ movies = pd.read_csv("movies.csv")
 #to check if the import is proper by printing
 print(rating.head())
 print(movies.head())
+
+
+#merges the data based on the entries in column MovieId
+totdata = pd.merge(rating, movies, on='movieId')
+#print(totdata.head())
+
+#making a pivot table
+UserPivotTable = pd.pivot_table(totdata, index='userId', columns='title', values='rating', fill_value=0)
+print(UserPivotTable)
+
+#recommendation algorithm
+'''
+- We use the tf-idf vectorization to convert the genres of the various movies into numerical values
+- we calcuate how close the values are using cosine similarity (can use k means clustering too tho na? would work or not?)
+- We recommend the movie based on how close the movie is to current movie
+'''

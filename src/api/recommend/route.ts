@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const { movie, year } = await req.json()
 
   try {
-    const { stdout, stderr } = await execAsync(`python recommend.py "${movie}" ${year}`)
+    const { stdout, stderr } = await execAsync(`python MovieRecommnder.py "${movie}" ${year}`)
 
     if (stderr) {
       console.error("stderr:", stderr)

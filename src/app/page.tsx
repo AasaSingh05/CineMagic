@@ -28,7 +28,7 @@ export default function Home() {
       if (!response.ok) {
         const text = await response.text()
         console.error('Response not ok:', response.status, text)
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw Error(`HTTP error! status: ${response.status}`)
       }
 
       const data = await response.json()

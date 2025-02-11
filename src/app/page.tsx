@@ -24,12 +24,26 @@ export default function Home() {
         },
         body: JSON.stringify({ movie, year }),
       })
+
+      if (!response.ok) {
+        const text = await response.text()
+        console.error('Response not ok:', response.status, text)
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const data = await response.json()
-      setRecommendations(data.recommendations)
+      if (data.error) {
+        console.error('API error:', data.error)
+        setRecommendations([])
+        return
+      }
+      setRecommendations(data.recommendations || [])
     } catch (error) {
       console.error("Error:", error)
+      setRecommendations([])
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

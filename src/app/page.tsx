@@ -60,8 +60,8 @@ export default function Home() {
       >
         <Card className="bg-black/80 text-white border-2 border-yellow-400 shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-yellow-400">CineMagic</CardTitle>
-            <CardDescription className="text-gray-300">Your Personal Movie Usher</CardDescription>
+            <CardTitle className="text-3xl font-bold text-yellow-400">🎬🍿 CineMagic 🍿🎬</CardTitle>
+            <CardDescription className="text-gray-300">Your Personal Movie Usher </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">

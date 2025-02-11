@@ -12,9 +12,8 @@ export async function POST(req: Request) {
     // Get the absolute path to the Python script
     const scriptPath = path.join(process.cwd(), 'scripts', 'MovieRecommender.py')
     
-    // Use 'python3' or the full path to your Python executable
-    const pythonPath = "C:\\Path\\To\\Your\\Python\\python.exe"  // Adjust this path
-    const { stdout, stderr } = await execAsync(`"${pythonPath}" "${scriptPath}" "${movie}" ${year}`)
+    // Use 'py' instead of 'python' for Windows
+    const { stdout, stderr } = await execAsync(`py "${scriptPath}" "${movie}" ${year}`)
 
     if (stderr) {
       console.error("stderr:", stderr)

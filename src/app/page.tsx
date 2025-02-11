@@ -114,7 +114,7 @@ export default function Home() {
                 transition={{ duration: 0.5 }}
                 className="mt-6"
               >
-                <h3 className="text-xl font-semibold text-yellow-400 mb-3">Coming Attractions:</h3>
+                <h3 className="text-xl font-semibold text-yellow-400 mb-3">Recommendations:</h3>
                 <ul className="space-y-2">
                   {recommendations.map((movie, index) => (
                     <motion.li

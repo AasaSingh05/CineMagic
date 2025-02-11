@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     // Get the root directory of the project
     const rootDir = process.cwd()
     // Construct the full path to the Python script
-    const scriptPath = path.join(rootDir, 'MovieRecommender.py')
+    const scriptPath = path.join(rootDir, 'scripts', 'MovieRecommender.py')
     
     const { stdout, stderr } = await execAsync(`python "${scriptPath}" "${movie}" ${year}`)
 

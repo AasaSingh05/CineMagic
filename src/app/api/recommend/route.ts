@@ -22,28 +22,47 @@ export async function POST(req: Request) {
       }, { status: 500 })
     }
 
-    console.log(`Executing script at: ${scriptPath}`)
+    console.log(`Executing script with: movie="${movie}", year="${year}"`)
     
     // Use 'py' instead of 'python' for Windows
-    const { stdout, stderr } = await execAsync(`py "${scriptPath}" "${movie}" ${year}`)
+    const command = `py "${scriptPath}" "${movie.trim()}" ${year}`
+    console.log(`Executing command: ${command}`)
+    
+    const { stdout, stderr } = await execAsync(command)
 
     if (stderr) {
-      console.error("stderr:", stderr)
-      return NextResponse.json({ error: "An error occurred while processing your request." }, { status: 500 })
+      console.error("Python stderr:", stderr)
+      return NextResponse.json({ 
+        error: "Python script error",
+        details: stderr
+      }, { status: 500 })
     }
 
-    // Check if stdout starts with "ERROR:"
-    if (stdout.trim().startsWith("ERROR:")) {
-      return NextResponse.json({ error: stdout.trim() }, { status: 400 })
+    const output = stdout.trim()
+    console.log("Python output:", output)
+
+    if (output.startsWith("ERROR:")) {
+      return NextResponse.json({ 
+        error: output,
+        type: "PYTHON_ERROR"
+      }, { status: 400 })
     }
 
-    const recommendations = stdout.trim().split("\n")
+    if (!output) {
+      return NextResponse.json({ 
+        error: "No recommendations returned",
+        type: "NO_RESULTS"
+      }, { status: 404 })
+    }
+
+    const recommendations = output.split("\n")
     return NextResponse.json({ recommendations })
   } catch (error) {
-    console.error("Error:", error)
+    console.error("Error executing Python script:", error)
     return NextResponse.json({ 
       error: "An error occurred while processing your request.",
-      details: error instanceof Error ? error.message : String(error)
+      details: error instanceof Error ? error.message : String(error),
+      type: "EXECUTION_ERROR"
     }, { status: 500 })
   }
 }

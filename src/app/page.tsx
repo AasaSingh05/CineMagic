@@ -25,18 +25,22 @@ export default function Home() {
         body: JSON.stringify({ movie, year }),
       })
 
-      if (!response.ok) {
-        const text = await response.text()
-        console.error('Response not ok:', response.status, text)
-        throw Error(`HTTP error! status: ${response.status}`)
-      }
-
       const data = await response.json()
-      if (data.error) {
-        console.error('API error:', data.error)
+      
+      if (!response.ok) {
+        console.error('API Error:', data)
+        // Show error to user
         setRecommendations([])
         return
       }
+
+      if (data.error) {
+        console.error('API Error:', data.error)
+        // Show error to user
+        setRecommendations([])
+        return
+      }
+
       setRecommendations(data.recommendations || [])
     } catch (error) {
       console.error("Error:", error)

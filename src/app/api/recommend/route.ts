@@ -1,64 +1,43 @@
 import { NextResponse } from "next/server"
-import { exec } from "child_process"
-import { promisify } from "util"
-import path from "path"
-import fs from 'fs'
+import { kv } from '@vercel/kv'
+import { createClient } from '@supabase/supabase-js'
 
-const execAsync = promisify(exec)
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL!
+const supabaseKey = process.env.SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 export async function POST(req: Request) {
   const { movie, year } = await req.json()
 
   try {
-    // Get the absolute path to the Python script
-    const scriptPath = path.join(process.cwd(), 'scripts', 'MovieRecommender.py')
-    
-    // Debug: Check if file exists
-    if (!fs.existsSync(scriptPath)) {
-      console.error(`Script not found at path: ${scriptPath}`)
+    // Query movie recommendations from Supabase
+    const { data: recommendations, error } = await supabase
+      .from('movie_recommendations')
+      .select('recommended_movies')
+      .eq('movie_title', `${movie} (${year})`)
+      .single()
+
+    if (error) {
+      console.error("Supabase error:", error)
       return NextResponse.json({ 
-        error: "Python script not found",
-        details: `Script path: ${scriptPath}`
+        error: "Failed to fetch recommendations",
+        details: error.message
       }, { status: 500 })
     }
 
-    console.log(`Executing script with: movie="${movie}", year="${year}"`)
-    
-    // Use 'py' instead of 'python' for Windows
-    const command = `py "${scriptPath}" "${movie.trim()}" ${year}`
-    console.log(`Executing command: ${command}`)
-    
-    const { stdout, stderr } = await execAsync(command)
-
-    if (stderr) {
-      console.error("Python stderr:", stderr)
+    if (!recommendations) {
       return NextResponse.json({ 
-        error: "Python script error",
-        details: stderr
-      }, { status: 500 })
-    }
-
-    const output = stdout.trim()
-    console.log("Python output:", output)
-
-    if (output.startsWith("ERROR:")) {
-      return NextResponse.json({ 
-        error: output,
-        type: "PYTHON_ERROR"
-      }, { status: 400 })
-    }
-
-    if (!output) {
-      return NextResponse.json({ 
-        error: "No recommendations returned",
+        error: "No recommendations found",
         type: "NO_RESULTS"
       }, { status: 404 })
     }
 
-    const recommendations = output.split("\n")
-    return NextResponse.json({ recommendations })
+    return NextResponse.json({ 
+      recommendations: recommendations.recommended_movies 
+    })
   } catch (error) {
-    console.error("Error executing Python script:", error)
+    console.error("Error processing request:", error)
     return NextResponse.json({ 
       error: "An error occurred while processing your request.",
       details: error instanceof Error ? error.message : String(error),

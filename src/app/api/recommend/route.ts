@@ -53,11 +53,17 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({
       recommendations: recommendations.recommended_movies
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error processing request:", error);
-    return NextResponse.json({
-      error: "An error occurred while processing your request.",
-      details: error.message
-    }, { status: 500 });
+    if (error instanceof Error) {
+      return NextResponse.json({
+        error: "An error occurred while processing your request.",
+        details: error.message
+      }, { status: 500 });
+    } else {
+      return NextResponse.json({
+        error: "An unknown error occurred.",
+      }, { status: 500 });
+    }
   }
 }

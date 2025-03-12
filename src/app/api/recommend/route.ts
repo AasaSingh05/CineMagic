@@ -27,13 +27,13 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     const fullMovieName: string = `${movie} (${year})`;
+    console.log("Full Movie Name:", fullMovieName);
 
     // Query movie recommendations from Supabase
     const { data: recommendations, error } = await supabase
       .from('movie_recommendations')
       .select('recommended_movies')
-      .eq('movie_title', fullMovieName)
-      .single();
+      .eq('movie_title', fullMovieName);
 
     if (error) {
       console.error("Supabase error:", error);

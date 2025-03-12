@@ -50,6 +50,8 @@ export async function POST(req: Request): Promise<Response> {
       }, { status: 404 });
     }
 
+    console.log("Recommendations from Supabase:", recommendations);
+
     return NextResponse.json({
       recommendations: recommendations.recommended_movies
     });

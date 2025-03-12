@@ -7,6 +7,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 from supabase import create_client
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize Supabase client
 supabase_url = os.environ.get("SUPABASE_URL")

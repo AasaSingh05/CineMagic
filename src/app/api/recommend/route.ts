@@ -53,7 +53,7 @@ export async function POST(req: Request): Promise<Response> {
     console.log("Recommendations from Supabase:", recommendations);
 
     return NextResponse.json({
-      recommendations: recommendations.recommended_movies
+      recommendations
     });
   } catch (error: unknown) {
     console.error("Error processing request:", error);

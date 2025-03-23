@@ -27,6 +27,8 @@ export default function Home() {
 
       const data = await response.json()
       
+      console.log("API Response:", data)
+
       if (!response.ok) {
         console.error('API Error:', data)
         // Show error to user

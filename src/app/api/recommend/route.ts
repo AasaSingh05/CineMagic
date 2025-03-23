@@ -33,7 +33,8 @@ export async function POST(req: Request): Promise<Response> {
     const { data: recommendations, error } = await supabase
       .from('movie_recommendations')
       .select('recommended_movies')
-      .eq('movie_title', fullMovieName);
+      .eq('movie_title', fullMovieName)
+      .single();
 
     if (error) {
       console.error("Supabase error:", error);
@@ -53,7 +54,7 @@ export async function POST(req: Request): Promise<Response> {
     console.log("Recommendations from Supabase:", recommendations);
 
     return NextResponse.json({
-      recommendations
+      recommendations: recommendations.recommended_movies
     });
   } catch (error: unknown) {
     console.error("Error processing request:", error);

@@ -25,9 +25,9 @@ export default function Home() {
         body: JSON.stringify({ movie, year }),
       })
       
-      console.log("API Request:", { movie, year });
+      console.log("API Request:", { movie, year })
 
-      const data = await response.json()
+      const data = await response.json();
       
       console.log("API Response:", data)
 

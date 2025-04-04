@@ -1,58 +1,46 @@
 import { NextResponse } from 'next/server';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl: string | undefined = process.env.SUPABASE_URL;
-const supabaseKey: string | undefined = process.env.SUPABASE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Missing Supabase URL or Key in environment variables");
+// Define the expected response type
+interface MovieRecommendation {
+  recommended_movies: string[];
 }
 
-const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
-
-interface RecommendedMovies{
-  recommended_movies : string[];
-};
+const supabaseUrl = process.env.SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(req: Request) {
   try {
-    const { movie, year }: { movie: string; year: string } = await req.json();
-    
-    const fullMovieName = `${movie.trim()} (${year.trim()})`;
-    console.log("Querying for:", JSON.stringify(fullMovieName)); // Debug exact format
-    
-    const { data , error } = await supabase
-  .from('movie_recommendations')
-  .select('*')
-  .eq('movie_title', fullMovieName)
-  .returns<RecommendedMovies>()
-  .maybeSingle();
-    
-    if (error) {
-      console.error("Supabase Error Details:", {
-        message: error.message,
-        code: error.code,
-        details: error.details
-      });
-      throw error;
-    }
+    const { movie, year } = await req.json();
+    const fullMovieName = `${movie} (${year})`;
+
+    // Query with proper typing
+    const { data, error } = await supabase
+      .from('movie_recommendations')
+      .select('recommended_movies')
+      .eq('movie_title', fullMovieName)
+      .maybeSingle();
+
+    if (error) throw error;
     
     if (!data) {
       return NextResponse.json({
-        error: `No recommendations found for ${fullMovieName}`,
+        error: "No recommendations found",
         type: "NO_RESULTS"
       }, { status: 404 });
     }
 
+    // Now TypeScript knows data has recommended_movies
     return NextResponse.json({
-      recommendations: data?.recommended_movies || [] // Handle null case
+      recommendations: data?.recommended_movies // Fallback to empty array
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error:", error);
     return NextResponse.json({
       error: "Database error",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error.message || "Unknown error"
     }, { status: 500 });
   }
 }

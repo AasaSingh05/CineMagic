@@ -14,63 +14,38 @@ interface RequestBody {
   movie: string;
   year: string;
 }
-
-export async function POST(req: Request): Promise<Response> {
+export async function POST(req: Request) {
   try {
-    const { movie, year }: RequestBody = await req.json();
+    const { movie, year }: { movie: string; year: string } = await req.json();
+    
+    // Combine into "Movie (Year)" format
+    const fullMovieName = `${movie} (${year})`.trim();
+    console.log("Searching for:", fullMovieName); // Debug log
 
-    if (!movie || !year) {
-      return NextResponse.json({
-        error: "Missing movie or year in request body",
-        type: "INVALID_INPUT"
-      }, { status: 400 });
-    }
-
-    const fullMovieName: string = `${movie} (${year})`;
-    console.log("Full Movie Name:", fullMovieName);
-
-    // Query movie recommendations from Supabase
     const { data, error } = await supabase
-    .from('movie_recommendations')
-    .select('recommended_movies')
-    .eq('movie_title', fullMovieName)
-    .maybeSingle(); // Better than .single() for beginners
-  
-    if (error) {
-      console.error("Supabase error:", error);
-      return NextResponse.json({
-        error: "Failed to fetch recommendations",
-        details: error.message
-      }, { status: 500 });
-    }
+      .from('movie_recommendations')
+      .select('recommended_movies')
+      .eq('movie_title', fullMovieName) // Exact match
+      .maybeSingle(); // Safely handle no results
+
+    if (error) throw error;
     
     if (!data) {
       return NextResponse.json({
-        error: "No recommendations found",
+        error: `No recommendations found for ${fullMovieName}`,
         type: "NO_RESULTS"
       }, { status: 404 });
     }
-    
-    // Access the jsonb array directly
-    const recommendations = data.recommended_movies;
-    
-    console.log("Recommendations from DB:", recommendations); // Debug log
-    
+
     return NextResponse.json({
-      recommendations: recommendations || [] // Fallback to empty array
+      recommendations: data.recommended_movies || [] // Handle null case
     });
 
-  } catch (error: unknown) {
-    console.error("Error processing request:", error);
-    if (error instanceof Error) {
-      return NextResponse.json({
-        error: "An error occurred while processing your request.",
-        details: error.message
-      }, { status: 500 });
-    } else {
-      return NextResponse.json({
-        error: "An unknown error occurred.",
-      }, { status: 500 });
-    }
+  } catch (error) {
+    console.error("Error:", error);
+    return NextResponse.json({
+      error: "Database error",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 });
   }
 }

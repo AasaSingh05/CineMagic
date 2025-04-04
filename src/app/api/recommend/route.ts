@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Define the expected response type
+interface MovieRecommendation {
+  recommended_movies: string[];
+}
+
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -10,7 +15,7 @@ export async function POST(req: Request) {
     const { movie, year } = await req.json();
     const fullMovieName = `${movie} (${year})`;
 
-    // Query with proper typing
+    // Query without .returns()
     const { data, error } = await supabase
       .from('movie_recommendations')
       .select('recommended_movies')
@@ -26,16 +31,18 @@ export async function POST(req: Request) {
       }, { status: 404 });
     }
 
-    // Now TypeScript knows data has recommended_movies
+    // Type assertion if needed
+    const recommendations = (data as MovieRecommendation).recommended_movies || [];
+    
     return NextResponse.json({
-      recommendations: data?.recommended_movies // Fallback to empty array
+      recommendations
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({
       error: "Database error",
-      details: error.message || "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 });
   }
 }

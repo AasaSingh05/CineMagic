@@ -10,10 +10,6 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
 
-interface RequestBody {
-  movie: string;
-  year: string;
-}
 export async function POST(req: Request) {
   try {
     const { movie, year }: { movie: string; year: string } = await req.json();

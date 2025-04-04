@@ -30,12 +30,12 @@ export async function POST(req: Request): Promise<Response> {
     console.log("Full Movie Name:", fullMovieName);
 
     // Query movie recommendations from Supabase
-    const { data: recommendations, error } = await supabase
-      .from('movie_recommendations')
-      .select('recommended_movies')
-      .eq('movie_title', fullMovieName)
-      .single();
-
+    const { data, error } = await supabase
+    .from('movie_recommendations')
+    .select('recommended_movies')
+    .eq('movie_title', fullMovieName)
+    .maybeSingle(); // Better than .single() for beginners
+  
     if (error) {
       console.error("Supabase error:", error);
       return NextResponse.json({
@@ -43,19 +43,23 @@ export async function POST(req: Request): Promise<Response> {
         details: error.message
       }, { status: 500 });
     }
-
-    if (!recommendations) {
+    
+    if (!data) {
       return NextResponse.json({
         error: "No recommendations found",
         type: "NO_RESULTS"
       }, { status: 404 });
     }
-
-    console.log("Recommendations from Supabase:", recommendations);
-
+    
+    // Access the jsonb array directly
+    const recommendations = data.recommended_movies;
+    
+    console.log("Recommendations from DB:", recommendations); // Debug log
+    
     return NextResponse.json({
-      recommendations: recommendations.recommended_movies
+      recommendations: recommendations || [] // Fallback to empty array
     });
+
   } catch (error: unknown) {
     console.error("Error processing request:", error);
     if (error instanceof Error) {

@@ -10,21 +10,32 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
 
+interface RecommendedMovies{
+  recommended_movies : string[];
+};
+
 export async function POST(req: Request) {
   try {
     const { movie, year }: { movie: string; year: string } = await req.json();
     
-    // Combine into "Movie (Year)" format
-    const fullMovieName = `${movie} (${year})`.trim();
-    console.log("Searching for:", fullMovieName); // Debug log
-
-    const { data, error } = await supabase
-      .from('movie_recommendations')
-      .select('recommended_movies')
-      .eq('movie_title', fullMovieName) // Exact match
-      .maybeSingle(); // Safely handle no results
-
-    if (error) throw error;
+    const fullMovieName = `${movie.trim()} (${year.trim()})`;
+    console.log("Querying for:", JSON.stringify(fullMovieName)); // Debug exact format
+    
+    const { data , error } = await supabase
+  .from('movie_recommendations')
+  .select('*')
+  .eq('movie_title', fullMovieName)
+  .returns<RecommendedMovies>()
+  .maybeSingle();
+    
+    if (error) {
+      console.error("Supabase Error Details:", {
+        message: error.message,
+        code: error.code,
+        details: error.details
+      });
+      throw error;
+    }
     
     if (!data) {
       return NextResponse.json({
@@ -34,7 +45,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      recommendations: data.recommended_movies || [] // Handle null case
+      recommendations: data?.recommended_movies || [] // Handle null case
     });
 
   } catch (error) {
